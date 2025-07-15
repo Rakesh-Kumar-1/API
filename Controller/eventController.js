@@ -5,7 +5,7 @@ export const createEvent = async (req, res) => {
   try {
     if (capacity <= 1000 && capacity >= 0) {
       const result = await pool.query(
-        "INSERT INTO events (title,event_date,location,capacity) VALUES ($1,$2,43.$4) RETURNING *",
+        "INSERT INTO events (title,event_date,location,capacity) VALUES ($1,$2,$3,$4) RETURNING *",
         [title, event_date, location, capacity]
       );
       return res
@@ -27,14 +27,13 @@ export const createEvent = async (req, res) => {
   }
 };
 export const eventDetails = async (req, res) => {
-    const {eventId} = req.body;
   try {
     const result = await pool.query(
       `SELECT e.event_id, e.title, e.event_date, e.location, e.capacity,u.user_id, u.name, u.email, er.registration_date
         FROM events e
         LEFT JOIN event_registrations er ON e.event_id = er.event_id
         LEFT JOIN users u ON er.user_id = u.user_id
-        WHERE e.event_id = $1`,[eventId]);
+        WHERE e.event_id = $1`,[req.params.eventId]);
     return res.status(200).json({ status: true, data: result.rows });
   } catch (err) {
     return res.status(500).json({ status: false, message: "Error occured", error: err });
@@ -47,10 +46,10 @@ export const registerForEvent = async (req, res) => {
         const result = await pool.query(`SELECT event_id, event_date, capacity FROM events WHERE event_id = $1 AND event_date > NOW()`,[eventId]);
 
         if (result.rowCount === 0) {
-            return res.status(400).json({ status: false, message: "Event does not exist."});
+          return res.status(400).json({ status: false, message: "Event does not exist."});
         }
 
-        const event = eventQuery.rows[0];
+        const event = result.rows[0];
 
         // Step 2: Check if the event is full
         const registrationCountQuery = await pool.query(`SELECT COUNT(*) FROM event_registrations WHERE event_id = $1`,[eventId]);
@@ -58,7 +57,7 @@ export const registerForEvent = async (req, res) => {
         const seats = parseInt(registrationCountQuery.rows[0].count, 10);
 
         if (seats >= event.capacity) {
-            return res.status(400).json({ status:true, message: 'Event is full cannot register'});
+          return res.status(400).json({ status:true, message: 'Event is full cannot register'});
         }
 
         // Step 3: Check if the user already exists by email
@@ -103,12 +102,12 @@ export const cancelRegistration = async (req, res) => {
 }
 };
 export const upcomingEvent = async (req, res) => {
-    const future = await pool.query(`SELECT * FROM events WHERE event_date > NOW()  -- Filter for future events only ORDER BY event_date ASC,location ASC`);
+    const future = await pool.query(`SELECT * FROM events WHERE event_date > NOW() ORDER BY event_date ASC,location ASC`);
     try{
         if (future.rows.length === 0) {
-                return res.status(404).json({ message: 'No upcoming events'});
-            }
-        res.status(200).json(result.rows);
+          return res.status(404).json({ message: 'No upcoming events'});
+        }
+        res.status(200).json(future.rows);
     }catch (error) {
         res.status(500).json({ message: 'Catch block error',error:error });
     }
