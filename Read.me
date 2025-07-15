@@ -1,0 +1,59 @@
+#For Setup 
+npm install
+
+#API discription
+router.post("/createevent",createEvent);
+--> for creating events
+
+router.get("/eventdetails/:eventId", eventDetails)
+--> for getting event details
+
+router.post("/createuser",registerForEvent);
+--> for registrating in event
+router.post("/cancel",cancelRegistration);
+--> for canceling registration
+router.get("/upevents",upcomingEvent);
+-->for getting upcoming events
+router.get("/eventstats/:id",eventStats);
+--> Total registrations , Remaining capacity ,Percentage of capacity used 
+
+Example requests/responses 
+for--> /createevent --> 
+req
+{
+  "title": "BBA",
+  "event_date": "2025-08-15T20:00:00Z",
+  "location": "goa",
+  "capacity": 500
+}
+res
+{
+  "status": true,
+  "message": "User created successfully",
+  "data": {
+    "id": 1,
+    "title": "BBA",
+    "event_date": "2025-08-15T20:00:00Z",
+    "location": "goa",
+    "capacity": 500
+  }
+}
+for-->eventDetails
+res-> /eventdetails/:1
+{
+  "status": true,
+  "data": [
+    {
+      "event_id": 1,
+      "title": "BBA",
+      "event_date": "2025-08-15T20:00:00Z",
+      "location": "goa",
+      "capacity": 500,
+      "user_id": 1,
+      "name": "veer",
+      "email": "veer123@gmail.com",
+      "registration_date": "2025-07-01T12:30:00Z"
+    }
+  ]
+}
+
