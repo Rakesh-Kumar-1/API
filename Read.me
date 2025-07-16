@@ -1,0 +1,114 @@
+#For Setup 
+npm install
+
+#API discription
+router.post("/createevent",createEvent);
+--> for creating events
+router.get("/eventdetails/:eventId", eventDetails)
+--> for getting event details
+router.post("/createuser",registerForEvent);
+--> for registrating in event
+router.post("/cancel",cancelRegistration);
+--> for canceling registration
+router.get("/upevents",upcomingEvent);
+-->for getting upcoming events
+router.get("/eventstats/:id",eventStats);
+--> Total registrations , Remaining capacity ,Percentage of capacity used 
+
+
+Example requests/responses 
+
+/createevent
+req-->
+json
+{
+  "title": "BBA",
+  "event_date": "2025-08-15T20:00:00Z",
+  "location": "goa",
+  "capacity": 500
+}
+res-->
+{
+  "status": true,
+  "message": "Event created successfully",
+  "data": {
+    "event_id": 1,
+    "title": "BBA",
+    "event_date": "2025-08-15T20:00:00Z",
+    "location": "goa",
+    "capacity": 500
+  }
+}
+
+/eventdetails/:eventId
+req--> GET /eventdetails/1
+res-->
+{
+  "status": true,
+  "data": [
+    {
+      "event_id": 1,
+      "title": "BBA",
+      "event_date": "2025-08-15T20:00:00Z",
+      "location": "goa",
+      "capacity": 500,
+      "user_id": 101,
+      "name": "Alice Sharma",
+      "email": "alice@example.com",
+      "registration_date": "2025-07-20T14:00:00Z"
+    }
+  ]
+}
+/createuser
+req-->
+{
+  "username": "Aman Sharma",
+  "useremail": "aman123@gmail.com",
+  "eventId": 1
+}
+res-->
+{
+  "message": "Registration successful"
+}
+/cancel
+req-->
+
+{
+  "useremail": "aman123@gmail.com",
+  "eventId": 1
+}
+res-->
+{
+  "message": "Registration cancelled"
+}
+/upevents
+req-->
+GET /upevents
+res-->
+[
+  {
+    "event_id": 1,
+    "title": "BBA",
+    "event_date": "2025-08-15T20:00:00Z",
+    "location": "goa",
+    "capacity": 500
+  },
+  {
+    "event_id": 2,
+    "title": "AI",
+    "event_date": "2025-09-01T10:30:00Z",
+    "location": "mumbai",
+    "capacity": 300
+  }
+]
+/eventstats/:id
+req--> /eventstats/1
+res-->
+{
+  "event_id": 1,
+  "title": "BBA",
+  "capacity": 500,
+  "total_registrations": 120,
+  "remaining_capacity": 380,
+  "percentage_capacity_used": 24.00
+}
