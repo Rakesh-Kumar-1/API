@@ -42,7 +42,7 @@ export const eventDetails = async (req, res) => {
 export const registerForEvent = async (req, res) => {
   const { username, useremail, eventId } = req.body;
   try {
-        // Step 1: Check if the event exists and is not in the past
+
         const result = await pool.query(`SELECT event_id, event_date, capacity FROM events WHERE event_id = $1 AND event_date > NOW()`,[eventId]);
 
         if (result.rowCount === 0) {
@@ -51,7 +51,6 @@ export const registerForEvent = async (req, res) => {
 
         const event = result.rows[0];
 
-        // Step 2: Check if the event is full
         const registrationCountQuery = await pool.query(`SELECT COUNT(*) FROM event_registrations WHERE event_id = $1`,[eventId]);
 
         const seats = parseInt(registrationCountQuery.rows[0].count, 10);
@@ -60,7 +59,6 @@ export const registerForEvent = async (req, res) => {
           return res.status(400).json({ status:true, message: 'Event is full cannot register'});
         }
 
-        // Step 3: Check if the user already exists by email
         const user = await pool.query(`SELECT * FROM users WHERE email = $1`,[useremail]);
 
         let userId;
@@ -70,14 +68,14 @@ export const registerForEvent = async (req, res) => {
         } else {
             userId = userResult.rows[0].user_id;
         }
-        // Step 4: Check for duplicate registrations (same user cannot register multiple times for the same event)
+
         const duplicate = await pool.query(`SELECT * FROM event_registrations WHERE event_id = $1 AND user_id = $2`,[eventId, userId]);
 
         if (duplicate.rows.length > 0) {
             return res.status(400).json({ message: 'You are already registered for this event' });
         }
 
-        // Step 5: Insert the registration record
+     
         await pool.query(`INSERT INTO event_registrations (event_id, user_id) VALUES ($1, $2)`,[eventId, userId]);
         return res.status(200).json({ message: 'Registration successful' });
     }catch(error){

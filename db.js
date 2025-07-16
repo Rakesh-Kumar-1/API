@@ -14,6 +14,10 @@ const pool = new Pool({
 
 pool.on("connect", ()=>{
     console.log("connection pool established with Databse");
-})
+});
+
+pool.on('error', (err) => {
+    console.error('Error in the database connection pool', err);
+});
 
 export default pool;
